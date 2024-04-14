@@ -14,54 +14,73 @@ def bisection_method():
     k = 0
     ak = a0
     bk = b0
-    print(f"Левая граница - {a0:.3f}, правая граница - {b0:.3f}")
+    print("-> ШАГ 1")
+    print(f"L0 = [{ak}; {bk}], ε = {epsilon}")
+    print("-> ШАГ 2")
+    print("k = 0")
 
-    center = (ak + bk) / 2
-    print(f"Центр - {center}")
+    xk = (ak + bk) / 2
+    L2k = bk - ak
+    print("-> ШАГ 3")
+    print(f"x{k} = {xk:.3f}, |L2{k}| = {L2k}, f(x{k}) = {solve_func(xk):.3f}")
 
     plot_x = []
     plot_state = 0
 
     while math.fabs(bk - ak) > epsilon:
-        print(f"|bk - ak| ({math.fabs(bk - ak):.3f}) > epsilon ({epsilon:.3f})")
-        print(f"--- Итерация {k + 1} ---")
-        yk = ak + math.fabs(bk - ak) / 4
-        zk = bk - math.fabs(bk - ak) / 4
+        print(f"--- Итерация {k+1} ---")
+        yk = ak + (bk - ak) / 4
+        zk = bk - (bk - ak) / 4
         if k == 0:
             plot_x.append(ak)
             plot_x.append(bk)
-            plot_x.append(center)
+            plot_x.append(xk)
             plot_x.append(yk)
             plot_x.append(zk)
-        print(f"Четверть слева - {yk:.3f}, четверть справа - {zk:.3f}")
+        print("-> ШАГ 4")
+        print(f"y{k} = {yk:.3f}, z{k} = {zk:.3f}, f(y{k}) = {solve_func(yk):.3f}, f(z{k}) = {solve_func(zk):.3f}")
 
-        print("Сравниваем значения функции слева от центра...", end='\t')
-        if solve_func(yk) < solve_func(center):
-            print(f"{solve_func(yk):.3f} < {solve_func(center):.3f}")
-            bk = center
-            center = yk
+        print("-> ШАГ 5")
+        print(f"Сравним значения f(y{k}) и f(x{k})...", end='\t')
+        if solve_func(yk) < solve_func(xk):
+            print(f"{solve_func(yk):.3f} < {solve_func(xk):.3f}")
+            bk = xk
+            xk = yk
+            print("-> ШАГ 5(а)")
+            print(f'Положим b{k+1} = {bk:.3f}, a{k+1} = {ak:.3f}, x{k+1} = {xk:.3f}, f(x{k+1}) = {solve_func(xk):.3f}')
         else:
-            print(f"{solve_func(yk):.3f} >= {solve_func(center):.3f}")
-            print("Сравниваем значения функции справа от центра...", end='\t')
-            if solve_func(zk) < solve_func(center):
-                print(f"{solve_func(zk):.3f} < {solve_func(center):.3f}")
-                ak = center
-                center = zk
+            print(f"{solve_func(yk):.3f} >= {solve_func(xk):.3f}")
+            print("-> ШАГ 5(б) => ШАГ 6")
+            print("-> ШАГ 6")
+            print(f"Сравним значения f(z{k}) и f(x{k})...", end='\t')
+            if solve_func(zk) < solve_func(xk):
+                print(f"{solve_func(zk):.3f} < {solve_func(xk):.3f}")
+                ak = xk
+                xk = zk
                 if k == 0:
                     plot_state = 1
+                print("-> ШАГ 6(а)")
+                print(f'Положим a{k + 1} = {ak:.3f}, b{k + 1} = {bk:.3f}, x{k + 1} = {xk:.3f}, f(x{k+1}) = {solve_func(xk):.3f}')
             else:
-                print(f"{solve_func(zk):.3f} >= {solve_func(center):.3f}")
+                print(f"{solve_func(zk):.3f} >= {solve_func(xk):.3f}")
                 ak = yk
                 bk = zk
                 if k == 0:
                     plot_state = 2
-        print(f"Новый интервал - [{ak:.3f}; {bk:.3f}]")
-        print(f"Новый центр - {center:.3f}")
+                print("-> ШАГ 6(б)")
+                print(f'Положим a{k + 1} = {ak:.3f}, b{k + 1} = {bk:.3f}, x{k + 1} = {xk:.3f}, f(x{k+1}) = {solve_func(xk):.3f}')
+        print("-> ШАГ 7")
+        print("Проверим условие окончания... ")
+        if math.fabs(bk - ak) <= epsilon:
+            print(f"L2{k+1} <= ε ({math.fabs(bk - ak):.3f} <= {epsilon})")
+            print(f"ШАГ 7(а)")
+            print(f"Поиск закончен, x* = [{ak:.3f}; {bk:.3f}]")
+        else:
+            print(f"L2{k + 1} > ε ({math.fabs(bk - ak):.3f} > {epsilon})")
+            print(f"ШАГ 7(б) => ШАГ 4, k = {k+1}")
         k += 1
-        print(f"--- Конец итерации {k} ---")
-    print(f"|bk - ak| ({math.fabs(bk - ak):.3f}) <= epsilon ({epsilon:.3f})")
     print("\n*** Конец метода половинного деления ***\n")
-    create_plot(plot_x, ['ak', 'bk', 'xk', 'yk', 'zk'], plot_state)
+    create_plot(plot_x, ['ak', 'bk', 'xk', 'yk', 'zk'], plot_state, "div_method")
     return [(ak + bk) / 2, solve_func((ak + bk) / 2), k]
 
 
@@ -103,7 +122,7 @@ def golden_ratio_method():
         print(f"--- Конец итерации {k} ---")
     print(f"|bk - ak| ({math.fabs(bk - ak):.3f}) <= epsilon ({epsilon:.3f})")
     print("\n*** Конец метода золотого сечения ***\n")
-    create_plot(plot_x, ['ak', 'bk', 'yk', 'zk'], plot_state)
+    create_plot(plot_x, ['ak', 'bk', 'yk', 'zk'], plot_state, "gold_method")
     return [(ak + bk) / 2, solve_func((ak + bk) / 2), k]
 
 
@@ -167,11 +186,11 @@ def fibonacci_number_method():
         ak = yN1
         print(f"{solve_func(yN1):.3f} > {solve_func(zN1):.3f}.\n Положим a(N-1) = {ak:.3f}, b(N-1) = {bk:.3f}")
     print("\n*** Конец метода чисел Фибоначчи ***\n")
-    create_plot(plot_x, ['ak', 'bk', 'yk', 'zk'], plot_state)
+    create_plot(plot_x, ['ak', 'bk', 'yk', 'zk'], plot_state, "fib_method")
     return [(ak + bk) / 2, solve_func((ak + bk) / 2), k]
 
 
-def create_plot(vert_line_points: list, vert_line_name: list, state: int):
+def create_plot(vert_line_points: list, vert_line_name: list, state: int, plot_name : str):
     x = np.linspace(a0, b0, int((b0 - a0) / 0.005))
     y = solve_func(x)
     plt_min = min(y)
@@ -228,7 +247,8 @@ def create_plot(vert_line_points: list, vert_line_name: list, state: int):
     plt.xlabel('x')
     plt.ylabel('y')
     plt.title('График функции f(x)')
-    plt.show()
+    plt.savefig(f"LAB1/{plot_name}.png")
+    plt.clf()
 
 
 print("!!! Предупреждение !!! Десятичная часть в вводе/выводе отделяется точкой!")
@@ -241,11 +261,14 @@ a0, b0 = map(float, input("Введите интервал неопределё�
 epsilon = float(input("Введите точность вычислений (epsilon)... "))
 
 b_method = bisection_method()
-print(
-    f'Метод половинного деления: \nФункция f(x) принимает минимальное значение {b_method[1]:.3f} в точке x0 = {b_method[0]:.3f}. \nКоличество итераций - {b_method[2]}')
+print('Метод половинного деления:')
+print(f'Min f(x*) = {b_method[1]:.3f}, x* = {b_method[0]:.3f}')
+print(f'Количество итераций: {b_method[2]}')
 g_method = golden_ratio_method()
-print(
-    f'Метод "золотого сечения": \nФункция f(x) принимает минимальное значение {g_method[1]:.3f} в точке x0 = {g_method[0]:.3f}. \nКоличество итераций - {g_method[2]}')
+print('Метод "золотого сечения":')
+print(f'Min f(x*) = {g_method[1]:.3f}, x* = {g_method[0]:.3f}')
+print(f'Количество итераций: {g_method[2]}')
 f_method = fibonacci_number_method()
-print(
-    f'Метод чисел Фибоначчи: \nФункция f(x) принимает минимальное значение {f_method[1]:.3f} в точке x0 = {f_method[0]:.3f}. \nКоличество итераций - {f_method[2]}')
+print('Метод чисел Фибоначчи:')
+print(f'Min f(x*) = {f_method[1]:.3f}, x* = {f_method[0]:.3f}')
+print(f'Количество итераций: {f_method[2]}')
